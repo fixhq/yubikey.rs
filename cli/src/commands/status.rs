@@ -3,6 +3,7 @@
 use crate::terminal::{print_cert_info, STDOUT};
 use clap::Parser;
 use std::io::{self, Write};
+use std::process::exit;
 use termcolor::{ColorSpec, StandardStreamLock, WriteColor};
 use yubikey::{piv::*, YubiKey};
 
@@ -35,8 +36,11 @@ impl StatusCmd {
             self.attr(&mut s, "CCC", NONE_STR).unwrap();
         }
 
-        self.attr(&mut s, "PIN retries", yk.get_pin_retries().unwrap())
-            .unwrap();
+        let retries = yk.get_pin_retries().unwrap_or_else(|e| {
+            status_err!("couldn't get PIN retries: {}", e);
+            exit(1);
+        });
+        self.attr(&mut s, "PIN retries", retries).unwrap();
 
         for slot in SLOTS.iter().cloned() {
             print_cert_info(&mut yk, slot, &mut s).unwrap();

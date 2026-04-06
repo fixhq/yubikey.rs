@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix: infinite loop in block_puk
 - Fix: Change `CachedPin` from `Vec<u8>` to `Zeroizing<Vec<u8>>` so cached PINs are zeroed on drop
+- Fix: Handle get_pin_retries error gracefully in CLI status command
 - Add Support for AES Management Keys
 - Dependencies Upgraded 2026-04-06
 
