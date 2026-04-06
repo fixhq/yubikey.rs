@@ -124,7 +124,7 @@ impl Display for Serial {
 }
 
 /// YubiKey version.
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Version {
     /// Major version component
     pub major: u8,
