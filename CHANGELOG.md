@@ -1,11 +1,14 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
 ### Added
+
 - `yubikey::certificate::SelfSigned`
 - `yubikey::Error::CertificateBuilder`
 - `yubikey::MgmAlgorithmId`
@@ -15,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `impl AsRef<[u8]> for MgmKey`
 
 ### Changed
+
 - MSRV is now 1.81.
 - Migrated the public API to the following (pre-release) dependencies:
   - `der 0.8.0-rc.1`
@@ -39,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Metadata command returns `Error:NotFound` instead of `Error::GenericError` when the object doesn't exist ([#558]).
 
 ### Removed
+
 - `yubikey::mgm`:
   - `MgmKey::new` (use `MgmKey::from_bytes(_, Some(MgmAlgorithmId::ThreeDes))`
     instead).
@@ -48,12 +53,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `impl TryFrom<&[u8]> for MgmKey` (use `MgmKey::from_bytes` instead).
 
 ## 0.8.0 (2023-08-15)
+
 ### Added
+
 - `impl Debug for {Context, YubiKey}` ([#457])
 - `YubiKey::disconnect` ([#462])
 - `Error::AppletNotFound` ([#476])
 
 ### Changed
+
 - `Reader::open` now returns `Error::AppletNotFound` instead of `Error::Generic`
   if the PIV applet is not present on the device. This is returned by non-PIV
   virtual smart cards like Windows Hello for Business, as well as some smart
@@ -74,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make `RsaKeyData::new` fallible ([#517])
 
 ### Fixed
+
 - `StatusWords::code` now returns the correct code (including embedded `tries`
   count) for `StatusWords::VerifyFailError`. Previously the returned code lost
   information and was not round-trip compatible with `StatusWords::from(u16)`.
@@ -92,18 +101,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#517]: https://github.com/iqlusioninc/yubikey.rs/pull/517
 
 ## 0.7.0 (2022-11-14)
+
 ### Added
+
 - Display inner PC/SC errors ([#420])
 - Support for metadata command ([#371])
 - Better `certificate::Serial` inspection ([#437])
 
 ### Changed
+
 - MSRV 1.60.0 ([#423])
 - Bump `rsa` to v0.7.1 ([#440])
 - Switch from `lazy_static` to `once_cell` ([#442])
 - Switch from `subtle-encoding` to `base16ct` ([#443])
 
 ### Fixed
+
 - Use `chrono` v0.4.23 or newer ([#436])
 - `Certificate::issuer` was returning the subject instead ([#437])
 
@@ -117,7 +130,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#443]: https://github.com/iqlusioninc/yubikey.rs/pull/443
 
 ## 0.6.0 (2022-08-10)
+
 ### Changed
+
 - 2021 edition upgrade ([#343])
 - RustCrypto crate upgrades; MSRV 1.57 ([#378])
   - `des` v0.8
@@ -140,7 +155,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#402]: https://github.com/iqlusioninc/yubikey.rs/pull/402
 
 ## 0.5.0 (2021-11-21)
+
 ### Changed
+
 - Update `rsa` dependency to 0.5 ([#315])
 - Update `pbkdf2` dependency to 0.9 ([#315])
 - Update `x509-parser` dependency to 0.12 ([#315], [#322])
@@ -150,17 +167,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#322]: https://github.com/iqlusioninc/yubikey.rs/pull/322
 
 ## 0.4.2 (2021-07-13)
+
 ### Added
+
 - Make `yubikey::Buffer` a pub type ([#290])
 
 ### Changed
+
 - Have `YubiKey::block_puk` take `&mut self` as argument ([#289])
 
 [#289]: https://github.com/iqlusioninc/yubikey.rs/pull/289
 [#290]: https://github.com/iqlusioninc/yubikey.rs/pull/290
 
 ## 0.4.1 (2021-07-12)
+
 ### Changed
+
 - Rename `SettingValue` to `Setting` ([#286])
 - Rename `Ccc` to `CccId` ([#287])
 
@@ -168,19 +190,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#287]: https://github.com/iqlusioninc/yubikey.rs/pull/287
 
 ## 0.4.0 (2021-07-12) [YANKED]
+
 ### Added
+
 - `Result` alias ([#271])
 
 ### Changed
+
 - Renamed crate from `yubikey-piv` => `yubikey` ([#267])
 - Renamed the following:
-    - `APDU` => `Apdu` ([#269])
-    - `CCC` => `Ccc` ([#269])
-    - `CHUID` => `ChuId` ([#269])
-    - `Ccc::cccid` => `Ccc::card_id` ([#270])
-    - `key` => `piv` ([#277])
-    - `readers` => `reader` ([#278])
-    - `readers::Readers` => `reader::Context` ([#278])
+  - `APDU` => `Apdu` ([#269])
+  - `CCC` => `Ccc` ([#269])
+  - `CHUID` => `ChuId` ([#269])
+  - `Ccc::cccid` => `Ccc::card_id` ([#270])
+  - `key` => `piv` ([#277])
+  - `readers` => `reader` ([#278])
+  - `readers::Readers` => `reader::Context` ([#278])
 - Bumped the following dependencies:
   - `rsa` => v0.4 ([#246])
   - `des` => v0.7 ([#251])
@@ -194,6 +219,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace `getrandom` with `rand_core` ([#276])
 
 ### Fixed
+
 - Potential local DoS in TLV parser ([#279])
 
 [#246]: https://github.com/iqlusioninc/yubikey.rs/pull/246
@@ -210,21 +236,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#279]: https://github.com/iqlusioninc/yubikey.rs/pull/279
 
 ## yubikey-piv 0.3.0 (2021-03-22)
+
 ### Added
+
 - Typed structs for PIN-protected and admin metadata ([#223])
 - `MgmKey::set_default`/`MgmKey::set_manual` methods ([#224])
 
 ### Changed
+
 - Have `Transaction::set_mgm_key` take touch requirement as bool ([#224])
 
 ### Removed
+
 - `MgmKey::set` method ([#224])
 
 [#223]: https://github.com/iqlusioninc/yubikey.rs/pull/223
 [#224]: https://github.com/iqlusioninc/yubikey.rs/pull/224
 
 ## yubikey-piv 0.2.0 (2021-01-30)
+
 ### Changed
+
 - Bump `der-parser` to v5.0 ([#194])
 - Improve self-signed certificates ([#207])
 - Bump `x509-parser` to v0.9 ([#208])
@@ -238,7 +270,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#219]: https://github.com/iqlusioninc/yubikey.rs/pull/219
 
 ## yubikey-piv 0.1.0 (2020-10-19)
+
 ### Added
+
 - `Certificate::generate_self_signed` ([#80])
 - `YubiKey::open_by_serial` ([#69])
 - CCCID/CHUID tests and cleanups ([#65])
@@ -247,6 +281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test `YubiKey::verify_pin` ([#60])
 
 ### Changed
+
 - Bump `crypto-mac`, `des`, `hmac`, `pbkdf2` ([#177])
 - Bump `p256` to v0.5; `p384` to v0.4; MSRV 1.44+ ([#175])
 - Refactor key import function ([#128])
@@ -257,9 +292,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move `sign`/`decrypt`/`import`/`attest` to the `key` module ([#62])
 
 ### Fixed
+
 - `pcsc::Error::NoReadersAvailable` -> `Error::NotFound` in `YubiKey::open*` ([#88])
 
 ### Removed
+
 - YubiKey NEO support ([#63])
 
 [#177]: https://github.com/iqlusioninc/yubikey.rs/pull/177
@@ -280,11 +317,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#60]: https://github.com/iqlusioninc/yubikey.rs/pull/60
 
 ## yubikey-piv 0.0.3 (2019-12-02)
+
 ### Added
+
 - Initial `Readers` enumerator for detecting YubiKeys ([#51])
 - Certificate parsing ([#45])
 
 ### Changed
+
 - Use `Reader` to connect to `YubiKey` ([#51])
 - Convert `SlotId` and `AlgorithmId` into enums ([#44])
 - Use `secrecy` crate for storing `CachedPin` ([#43])
@@ -308,12 +348,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#32]: https://github.com/iqlusioninc/yubikey.rs/pull/32
 
 ## yubikey-piv 0.0.2 (2019-11-25)
+
 ### Added
+
 - `untested` Cargo feature to mark untested functionality ([#30])
 - Initial connect test and docs ([#19])
 - Clean up APDU construction with builder API ([#15])
 
 ### Changed
+
 - Rewrite translated code to use the `pcsc` crate ([#17])
 - Rename ErrorKind to Error ([#13])
 - Use `des` crate for 3DES operations ([#10])
@@ -334,4 +377,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#6]: https://github.com/iqlusioninc/yubikey.rs/pull/6
 
 ## yubikey-piv 0.0.1 (2019-11-18)
+
 - Initial release

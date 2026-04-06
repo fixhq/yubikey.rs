@@ -41,7 +41,7 @@ endorsed by Yubico.
 
 ### Personal Identity Verification (PIV)
 
-[PIV] is a [NIST] standard for both *signing* and *encryption*
+[PIV] is a [NIST] standard for both _signing_ and _encryption_
 using SmartCards and SmartCard-based hardware tokens like YubiKeys.
 
 PIV-related functionality can be found in the [`piv`] module.
@@ -57,11 +57,11 @@ on which devices support PIV and the available functionality.
 
 - **Authentication**: `3DES`
 - **Encryption**:
-    - RSA: `RSA1024`, `RSA2048`, `RSA3072`, `RSA4096`
-    - ECC: `ECCP256`, `ECCP384` (NIST curves: P-256, P-384)
+  - RSA: `RSA1024`, `RSA2048`, `RSA3072`, `RSA4096`
+  - ECC: `ECCP256`, `ECCP384` (NIST curves: P-256, P-384)
 - **Signatures**:
-    - RSASSA-PKCS#1v1.5: `RSA1024`, `RSA2048`, `RSA3072`, `RSA4096`
-    - ECDSA: `ECCP256`, `ECCP384` (NIST curves: P-256, P-384)
+  - RSASSA-PKCS#1v1.5: `RSA1024`, `RSA2048`, `RSA3072`, `RSA4096`
+  - ECDSA: `ECCP256`, `ECCP384` (NIST curves: P-256, P-384)
 
 NOTE:
 
@@ -182,10 +182,10 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-* Redistributions of source code must retain the above copyright
+- Redistributions of source code must retain the above copyright
   notice, this list of conditions and the following disclaimer.
 
-* Redistributions in binary form must reproduce the above
+- Redistributions in binary form must reproduce the above
   copyright notice, this list of conditions and the following
   disclaimer in the documentation and/or other materials provided
   with the distribution.
@@ -209,8 +209,7 @@ submitted for inclusion in the work by you shall be licensed under the
 [2-Clause BSD License][BSDL] as shown above, without any additional terms
 or conditions.
 
-[//]: # (badges)
-
+[//]: # "badges"
 [crate-image]: https://img.shields.io/crates/v/yubikey?logo=rust
 [crate-link]: https://crates.io/crates/yubikey
 [docs-image]: https://docs.rs/yubikey/badge.svg
@@ -224,9 +223,7 @@ or conditions.
 [build-link]: https://github.com/iqlusioninc/yubikey.rs/actions
 [deps-image]: https://deps.rs/repo/github/iqlusioninc/yubikey.rs/status.svg
 [deps-link]: https://deps.rs/repo/github/iqlusioninc/yubikey.rs
-
-[//]: # (general links)
-
+[//]: # "general links"
 [YubiKey]: https://www.yubico.com/products/yubikey-hardware/
 [Yubico]: https://www.yubico.com/
 [PIV]: https://piv.idmanagement.gov/
@@ -243,9 +240,7 @@ or conditions.
 [cc-md]: https://github.com/iqlusioninc/yubikey.rs/blob/main/CODE_OF_CONDUCT.md
 [BSDL]: https://opensource.org/licenses/BSD-2-Clause
 [`untested` functionality tracking issue]: https://github.com/iqlusioninc/yubikey.rs/issues/280
-
-[//]: # (github issues)
-
+[//]: # "github issues"
 [#18]: https://github.com/iqlusioninc/yubikey.rs/issues/18
 [#20]: https://github.com/iqlusioninc/yubikey.rs/issues/20
 [#21]: https://github.com/iqlusioninc/yubikey.rs/issues/21

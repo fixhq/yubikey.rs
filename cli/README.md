@@ -49,10 +49,10 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:
 
-* Redistributions of source code must retain the above copyright
+- Redistributions of source code must retain the above copyright
   notice, this list of conditions and the following disclaimer.
 
-* Redistributions in binary form must reproduce the above
+- Redistributions in binary form must reproduce the above
   copyright notice, this list of conditions and the following
   disclaimer in the documentation and/or other materials provided
   with the distribution.
@@ -76,8 +76,7 @@ submitted for inclusion in the work by you shall be licensed under the
 [2-Clause BSD License][BSDL] as shown above, without any additional terms
 or conditions.
 
-[//]: # (badges)
-
+[//]: # "badges"
 [crate-image]: https://img.shields.io/crates/v/yubikey-cli.svg
 [crate-link]: https://crates.io/crates/yubikey-cli
 [docs-image]: https://docs.rs/yubikey-cli/badge.svg
@@ -91,9 +90,7 @@ or conditions.
 [build-link]: https://github.com/iqlusioninc/yubikey.rs/actions
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/iqlusioninc/community
-
-[//]: # (general links)
-
+[//]: # "general links"
 [PIV]: https://piv.idmanagement.gov/
 [yk-guide]: https://developers.yubico.com/PIV/Introduction/YubiKey_and_PIV.html
 [Yubico]: https://www.yubico.com/

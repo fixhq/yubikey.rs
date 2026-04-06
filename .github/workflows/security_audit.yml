@@ -6,7 +6,7 @@ on:
     branches: main
     paths: Cargo.lock
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
 
 jobs:
   # TODO: use actions-rs/audit-check
