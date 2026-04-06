@@ -77,8 +77,7 @@ pub(crate) const KEY_CARDMGM: u8 = 0x9b;
 const TAG_DYN_AUTH: u8 = 0x7c;
 
 /// Cached YubiKey PIN.
-// TODO(tarcieri): add a newtype for this with a zeroize impl
-pub type CachedPin = Vec<u8>;
+pub type CachedPin = zeroize::Zeroizing<Vec<u8>>;
 
 /// YubiKey serial number.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, PartialOrd, Ord)]
@@ -321,7 +320,7 @@ impl YubiKey {
             pcsc::Disposition::ResetCard,
         )?;
 
-        let pin = self.pin.as_ref().map(|p| Buffer::new(p.clone()));
+        let pin = self.pin.clone();
 
         let txn = Transaction::new(&mut self.card)?;
         txn.select_piv_application()?;
@@ -500,7 +499,7 @@ impl YubiKey {
         }
 
         if !pin.is_empty() {
-            self.pin = Some(pin.into())
+            self.pin = Some(pin.to_vec().into())
         }
 
         Ok(())
@@ -556,7 +555,7 @@ impl YubiKey {
         }
 
         if !new_pin.is_empty() {
-            self.pin = Some(new_pin.into());
+            self.pin = Some(new_pin.to_vec().into());
         }
 
         Ok(())
