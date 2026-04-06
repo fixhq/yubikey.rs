@@ -33,7 +33,7 @@ des = "0.9.0-rc.3"
 ecdsa = { version = "0.17.0-rc.16", features = ["digest", "pem"] }
 ed25519-dalek = { version = "3.0.0-pre.6", features = ["alloc", "pkcs8"] }
 elliptic-curve = "0.14.0-rc.29"
-hex = { package = "base16ct", version = "0.2", features = ["alloc"] }
+hex = { package = "base16ct", version = "1", features = ["alloc"] }
 log = "0.4"
 nom = "8"
 p256 = "0.14.0-rc.8"

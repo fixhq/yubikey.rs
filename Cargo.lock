@@ -87,12 +87,6 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
 name = "base16ct"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c7f02d4ea65f2c1853089ffd8d2787bdbc63de2f0d29dedbcf8ccdfa0ccd4cf"
-
-[[package]]
-name = "base16ct"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd307490d624467aa6f74b0eabb77633d1f758a7b25f12bceb0b22e08d9726f6"
@@ -400,7 +394,7 @@ version = "0.14.0-rc.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e84043d573efd4ac9d2d125817979a379204bf7e328b25a4a30487e8d100e618"
 dependencies = [
- "base16ct 1.0.0",
+ "base16ct",
  "crypto-bigint",
  "crypto-common",
  "digest",
@@ -931,7 +925,7 @@ version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d56d437c2f19203ce5f7122e507831de96f3d2d4d3be5af44a0b0a09d8a80e4d"
 dependencies = [
- "base16ct 1.0.0",
+ "base16ct",
  "ctutils",
  "der",
  "hybrid-array",
@@ -993,7 +987,7 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9af4a3e75ebd5599b30d4de5768e00b5095d518a79fefc3ecbaf77e665d1ec06"
 dependencies = [
- "base16ct 1.0.0",
+ "base16ct",
  "serde",
 ]
 
@@ -1366,7 +1360,7 @@ name = "yubikey"
 version = "0.9.0-pre.0"
 dependencies = [
  "aes",
- "base16ct 0.2.0",
+ "base16ct",
  "bitflags",
  "cipher",
  "curve25519-dalek",
@@ -1400,7 +1394,7 @@ dependencies = [
 name = "yubikey-cli"
 version = "0.9.0-pre"
 dependencies = [
- "base16ct 0.2.0",
+ "base16ct",
  "clap",
  "env_logger",
  "log",
