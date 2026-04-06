@@ -70,12 +70,6 @@ pub(crate) const APPLET_NAME: &str = "YubiKey MGMT";
 #[cfg(feature = "untested")]
 pub(crate) const APPLET_ID: &[u8] = &[0xa0, 0x00, 0x00, 0x05, 0x27, 0x47, 0x11, 0x17];
 
-/// Size of a DES key
-const DES_LEN_DES: usize = 8;
-
-/// Size of a 3DES key
-pub(super) const DES_LEN_3DES: usize = DES_LEN_DES * 3;
-
 pub(crate) const ADMIN_FLAGS_1_PROTECTED_MGM: u8 = 0x02;
 
 #[cfg(feature = "untested")]
@@ -234,14 +228,38 @@ impl MgmKey {
     /// Returns an error if the slice is an invalid size or the key is weak.
     ///
     /// If `alg` is `None`, the algorithm will be selected based on the length of the
-    /// slice, returning an error if there is not a unique match.
+    /// slice, returning an error if there is not a unique match. Note that 24-byte keys
+    /// are ambiguous between 3DES and AES-192; use [`MgmKey::from_bytes_for`] or pass
+    /// an explicit `alg` to disambiguate.
     pub fn from_bytes(bytes: impl AsRef<[u8]>, alg: Option<MgmAlgorithmId>) -> Result<Self> {
         match alg {
             Some(alg) => Self::parse_key(alg, bytes),
             None => match bytes.as_ref().len() {
-                DES_LEN_3DES => Self::parse_key(MgmAlgorithmId::ThreeDes, bytes),
+                16 => Self::parse_key(MgmAlgorithmId::Aes128, bytes),
+                // 24 bytes is ambiguous: could be 3DES or AES-192.
+                // Use from_bytes_for() to resolve via firmware version.
+                24 => Err(Error::ParseError),
+                32 => Self::parse_key(MgmAlgorithmId::Aes256, bytes),
                 _ => Err(Error::ParseError),
             },
+        }
+    }
+
+    /// Parses an MGM key from the given byte slice, using the YubiKey's firmware version
+    /// to select the correct algorithm when the key length is ambiguous.
+    ///
+    /// For 16-byte and 32-byte keys, the algorithm is unambiguous (AES-128 and AES-256).
+    /// For 24-byte keys, firmware <= 5.6 selects 3DES and firmware >= 5.7 selects AES-192.
+    pub fn from_bytes_for(bytes: impl AsRef<[u8]>, yubikey: &YubiKey) -> Result<Self> {
+        let len = bytes.as_ref().len();
+        match len {
+            16 => Self::parse_key(MgmAlgorithmId::Aes128, bytes),
+            24 => {
+                let alg = MgmAlgorithmId::default_for_version(yubikey.version());
+                Self::parse_key(alg, bytes)
+            }
+            32 => Self::parse_key(MgmAlgorithmId::Aes256, bytes),
+            _ => Err(Error::ParseError),
         }
     }
 

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fork Changes
+
+- Add Support for AES Management Keys
+- Dependencies Upgraded 2026-04-06
+
 ### Added
 
 - `yubikey::certificate::SelfSigned`
