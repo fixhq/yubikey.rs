@@ -622,7 +622,7 @@ impl YubiKey {
                     // depending on the firmware, tries may not be set to zero when the PUK is blocked,
                     // instead, the return code will be PIN_LOCKED and tries will be unset
                     if e != Error::PinLocked {
-                        continue;
+                        return Err(e);
                     }
                     tries_remaining = 0;
                 }
