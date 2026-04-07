@@ -215,7 +215,7 @@ impl<T: MetadataType> Metadata<T> {
 fn get_length_size(length: usize) -> usize {
     if length < 0x80 {
         1
-    } else if length < 0xff {
+    } else if length < 0x100 {
         2
     } else {
         3
