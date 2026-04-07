@@ -158,13 +158,22 @@ pub(crate) fn set_length(buffer: &mut [u8], length: usize) -> Result<usize> {
 pub(crate) fn get_length(buffer: &[u8], len: &mut usize) -> usize {
     // This is not valid ASN.1 (0x80 is the indefinite length marker).
     // See comment in key::generate for more context.
+    if buffer.is_empty() {
+        return 0;
+    }
     if buffer[0] < 0x81 {
         *len = buffer[0] as usize;
         1
     } else if (buffer[0] & 0x7f) == 1 {
+        if buffer.len() < 2 {
+            return 0;
+        }
         *len = buffer[1] as usize;
         2
     } else if (buffer[0] & 0x7f) == 2 {
+        if buffer.len() < 3 {
+            return 0;
+        }
         let tmp = buffer[1] as usize;
         *len = (tmp << 8) + buffer[2] as usize;
         3
@@ -175,6 +184,9 @@ pub(crate) fn get_length(buffer: &[u8], len: &mut usize) -> usize {
 
 /// Is length valid?
 pub(crate) fn has_valid_length(buffer: &[u8], len: usize) -> bool {
+    if buffer.is_empty() {
+        return false;
+    }
     (buffer[0] < 0x81 && len > 0)
         || ((buffer[0] & 0x7f) == 1 && len > 1)
         || ((buffer[0] & 0x7f == 2) && (len > 2))
