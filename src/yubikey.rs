@@ -422,7 +422,7 @@ impl YubiKey {
         }
 
         // compare the response from the card with our challenge
-        mgm_key.check_challenge(&host_challenge, &authentication.data()[4..])
+        mgm_key.check_challenge(&host_challenge, &authentication.data()[4..4 + challenge_len])
     }
 
     /// Get the PIV keys contained in this YubiKey.

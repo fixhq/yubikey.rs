@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Break BytesRemaining loop when card returns empty response to prevent infinite loop
 - Fix: Add length guard before slicing authentication response in MGM key verification
 - Fix: Align get_length_size boundary with set_length to prevent TLV corruption at length 255
+- Fix: Slice authentication response to exact challenge length to prevent ct_eq length mismatch
 - Add Support for AES Management Keys
 - Dependencies Upgraded 2026-04-06
 
