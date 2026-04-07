@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Replace unchecked slice indexing with bounds-checked .get() in read_public_key
 - Fix: Correct unsigned underflow in transfer_data output buffer size check
 - Fix: Add bounds checks in get_length and has_valid_length to prevent panic on truncated TLV data
+- Fix: Break BytesRemaining loop when card returns empty response to prevent infinite loop
 - Add Support for AES Management Keys
 - Dependencies Upgraded 2026-04-06
 

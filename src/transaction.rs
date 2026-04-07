@@ -458,6 +458,11 @@ impl<'tx> Transaction<'tx> {
                 _ => return Ok(Response::new(sw, vec![])),
             }
 
+            if response.data().is_empty() {
+                error!("card indicated BytesRemaining but returned no data");
+                return Err(Error::GenericError);
+            }
+
             if out_data.len() + response.data().len() > max_out {
                 error!(
                     "output buffer too small: wanted to write {}, max was {}",
