@@ -11,13 +11,59 @@ use once_cell::sync::Lazy;
 use rsa::{pkcs1v15, RsaPublicKey};
 use sha2::{Digest, Sha256};
 use signature::hazmat::PrehashVerifier;
-use std::{env, str::FromStr, sync::Mutex, time::Duration};
+use std::{env, ops::Range, str::FromStr, sync::Mutex, time::Duration};
 use x509_cert::{der::Encode, name::Name, serial_number::SerialNumber, time::Validity};
 use yubikey::{
     certificate::{yubikey_signer, Certificate},
     piv::{self, AlgorithmId, Key, ManagementSlotId, RetiredSlotId, SlotId},
     Error, MgmKey, PinPolicy, Serial, TouchPolicy, YubiKey,
 };
+
+/// Read a DER tag+length and return the byte range of the full TLV and the offset after it.
+fn der_tlv_range(data: &[u8], start: usize) -> (Range<usize>, usize) {
+    let mut pos = start + 1; // skip tag
+    let len = if data[pos] < 0x80 {
+        let l = data[pos] as usize;
+        pos += 1;
+        l
+    } else {
+        let num_bytes = (data[pos] & 0x7f) as usize;
+        pos += 1;
+        let mut l = 0usize;
+        for i in 0..num_bytes {
+            l = (l << 8) | data[pos + i] as usize;
+        }
+        pos += num_bytes;
+        l
+    };
+    let end = pos + len;
+    (start..end, end)
+}
+
+/// Extract the raw TBS certificate byte range and signature bytes from a DER-encoded certificate.
+/// Certificate ::= SEQUENCE { tbsCertificate, signatureAlgorithm, signatureValue }
+fn extract_tbs_and_signature(data: &[u8]) -> (Range<usize>, &[u8]) {
+    // Skip outer SEQUENCE tag+length
+    let content_start = if data[1] < 0x80 {
+        2
+    } else {
+        2 + (data[1] & 0x7f) as usize
+    };
+    // First element: TBS Certificate SEQUENCE
+    let (tbs_range, after_tbs) = der_tlv_range(data, content_start);
+    // Second element: Signature Algorithm SEQUENCE — skip it
+    let (_, after_sig_alg) = der_tlv_range(data, after_tbs);
+    // Third element: Signature Value BIT STRING
+    let (sig_range, _) = der_tlv_range(data, after_sig_alg);
+    // BIT STRING content starts with a pad-bits byte (0x00), skip it
+    let sig_content_start = if data[sig_range.start + 1] < 0x80 {
+        sig_range.start + 2 + 1 // tag + 1-byte length + pad byte
+    } else {
+        let num = (data[sig_range.start + 1] & 0x7f) as usize;
+        sig_range.start + 2 + num + 1 // tag + length-of-length + length bytes + pad byte
+    };
+    (tbs_range, &data[sig_content_start..sig_range.end])
+}
 
 static YUBIKEY: Lazy<Mutex<YubiKey>> = Lazy::new(|| {
     // Only show logs if `RUST_LOG` is set
@@ -297,21 +343,21 @@ fn generate_self_signed_cv_cert() {
     let pubkey =
         ed25519_dalek::VerifyingKey::try_from(cert.subject_pki()).expect("ed25519 key expected");
 
+    // Extract raw TBS bytes and signature from the DER-encoded certificate.
+    // YubiKey PIV pre-hashes TBS with SHA-512 before Ed25519 signing,
+    // so we must extract the original TBS bytes to reproduce that hash.
     let data = cert.cert.to_der().expect("serialize certificate");
-    let cert_len = data[2] as usize;
-    let tbs_cert_len = data[5] as usize;
-    let sig_algo_len: usize = 64;
-    let sig_start = cert_len - sig_algo_len + 3;
-    let msg = &data[3..6 + tbs_cert_len];
-    let sig =
-        ed25519_dalek::Signature::from_slice(&data[sig_start..sig_start + sig_algo_len]).unwrap();
+    let (tbs_range, sig_bytes) = extract_tbs_and_signature(&data);
+    let sig = ed25519_dalek::Signature::from_slice(sig_bytes).unwrap();
 
+    // YubiKey PIV signs SHA-512(TBS) as the Ed25519 message, so verify against the hash.
     use ed25519_dalek::Verifier;
-    assert!(pubkey.verify(msg, &sig).is_ok());
+    use sha2::Sha512;
+    let hash = Sha512::digest(&data[tbs_range]);
+    assert!(pubkey.verify(&hash, &sig).is_ok());
 }
 
 #[test]
-#[ignore]
 fn test_slot_id_display() {
     assert_eq!(format!("{}", SlotId::Authentication), "Authentication");
     assert_eq!(format!("{}", SlotId::Signature), "Signature");
@@ -442,7 +488,6 @@ fn test_read_metadata_missing_key() {
 }
 
 #[test]
-#[ignore]
 fn test_parse_cert_from_der() {
     let bob_der = std::fs::read("tests/assets/Bob.der").expect(".der file not found");
     let cert = Certificate::from_bytes(bob_der).expect("Failed to parse valid certificate");
