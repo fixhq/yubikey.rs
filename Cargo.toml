@@ -29,7 +29,7 @@ bitflags = "2.11.0"
 cipher = { version = "0.5", features = ["getrandom", "rand_core"] }
 curve25519-dalek = "5.0.0-pre.6"
 der = "0.8"
-des = "0.9.0-rc.3"
+des = { version = "0.9.0-rc.3", features = ["zeroize"] }
 ecdsa = { version = "0.17.0-rc.16", features = ["digest", "pem"] }
 ed25519-dalek = { version = "3.0.0-pre.6", features = ["alloc", "pkcs8"] }
 elliptic-curve = "0.14.0-rc.29"
@@ -50,7 +50,7 @@ subtle = "2"
 uuid = { version = "1.23", features = ["v4"] }
 x25519-dalek = "3.0.0-pre.6"
 x509-cert.workspace = true
-zeroize = "1"
+zeroize = { version = "1", features = ["derive"] }
 
 [dev-dependencies]
 env_logger = "0.11"

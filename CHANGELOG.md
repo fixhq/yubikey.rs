@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Tests
 - Fix: Refactor generate() TLV encoding to build inner content before wrapping with container tag
 - Fix: Review audit exceptions
+- Fix: Zeroize MgmKey on drop to prevent key material from persisting in stack memory
 - Add Support for AES Management Keys
 - Dependencies Upgraded 2026-04-06
 

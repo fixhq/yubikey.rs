@@ -44,6 +44,7 @@ use cipher::{
 };
 use log::error;
 use rand::TryCryptoRng;
+use zeroize::{Zeroize, ZeroizeOnDrop};
 
 #[cfg(feature = "untested")]
 use {
@@ -181,10 +182,10 @@ impl MgmAlgorithmId {
 /// a YubiKey in order to perform administrative functions.
 ///
 /// The only supported algorithm for MGM keys are 3DES and AES.
-#[derive(Clone)]
+#[derive(Clone, ZeroizeOnDrop)]
 pub struct MgmKey(MgmKeyKind);
 
-#[derive(Clone)]
+#[derive(Clone, Zeroize, ZeroizeOnDrop)]
 enum MgmKeyKind {
     Tdes(Key<des::TdesEde3>),
     Aes128(Key<aes::Aes128>),
