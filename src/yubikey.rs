@@ -417,7 +417,7 @@ impl YubiKey {
             .data(data)
             .transmit(&txn, 261)?;
 
-        if !authentication.is_success() {
+        if !authentication.is_success() || authentication.data().len() < 4 + challenge_len {
             return Err(Error::AuthenticationError);
         }
 
