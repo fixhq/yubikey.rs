@@ -1174,7 +1174,11 @@ fn read_public_key(
         AlgorithmId::X25519 | AlgorithmId::Ed25519 => {
             // 2-byte ASN.1 tag, 1-byte length (because all supported EC pubkey lengths
             // are shorter than 128 bytes, fitting into a definite short ASN.1 length).
-            let data = if skip_asn1_tag { &input[3..] } else { input };
+            let data = if skip_asn1_tag {
+                input.get(3..).ok_or(Error::SizeError)?
+            } else {
+                input
+            };
 
             let (_, tlv) = Tlv::parse(data)?;
             let pk_data: [u8; 32] = tlv.value.try_into().map_err(|_| Error::InvalidObject)?;
@@ -1232,7 +1236,11 @@ fn read_public_key(
             //
             // Because of the above, treat this for now as a 2-byte ASN.1 tag with a
             // 3-byte length.
-            let data = if skip_asn1_tag { &input[5..] } else { input };
+            let data = if skip_asn1_tag {
+                input.get(5..).ok_or(Error::SizeError)?
+            } else {
+                input
+            };
 
             let (data, modulus_tlv) = Tlv::parse(data)?;
             if modulus_tlv.tag != TAG_RSA_MODULUS {
@@ -1263,7 +1271,11 @@ fn read_public_key(
         AlgorithmId::EccP256 | AlgorithmId::EccP384 => {
             // 2-byte ASN.1 tag, 1-byte length (because all supported EC pubkey lengths
             // are shorter than 128 bytes, fitting into a definite short ASN.1 length).
-            let data = if skip_asn1_tag { &input[3..] } else { input };
+            let data = if skip_asn1_tag {
+                input.get(3..).ok_or(Error::SizeError)?
+            } else {
+                input
+            };
 
             let len = if let AlgorithmId::EccP256 = algorithm {
                 CB_ECC_POINTP256
