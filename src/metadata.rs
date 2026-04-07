@@ -183,8 +183,9 @@ impl<T: MetadataType> Metadata<T> {
             // Accounts for different length encoding
             - cb_len as isize;
 
-        // If length would cause buffer overflow, return error
-        if (self.inner.len() as isize + cb_moved) as usize > CB_OBJ_MAX {
+        // If length would cause buffer overflow or underflow, return error
+        let new_len = self.inner.len() as isize + cb_moved;
+        if new_len < 0 || new_len as usize > CB_OBJ_MAX {
             return Err(Error::GenericError);
         }
 
