@@ -688,18 +688,13 @@ pub fn generate(
 
     let templ = [0, Ins::GenerateAsymmetric.code(), 0, slot.into()];
 
+    let mut inner = [0u8; 9];
+    let mut inner_len = algorithm.write(&mut inner)?;
+    inner_len += pin_policy.write(&mut inner[inner_len..])?;
+    inner_len += touch_policy.write(&mut inner[inner_len..])?;
+
     let mut in_data = [0u8; 11];
-    let mut offset = Tlv::write_as(&mut in_data, 0xac, 3, |buf| {
-        assert_eq!(algorithm.write(buf).expect("large enough"), 3);
-    })?;
-
-    let pin_len = pin_policy.write(&mut in_data[offset..])?;
-    in_data[1] += pin_len as u8;
-    offset += pin_len;
-
-    let touch_len = touch_policy.write(&mut in_data[offset..])?;
-    in_data[1] += touch_len as u8;
-    offset += touch_len;
+    let offset = Tlv::write(&mut in_data, 0xac, &inner[..inner_len])?;
 
     let response = txn.transfer_data(&templ, &in_data[..offset], 1024)?;
 
