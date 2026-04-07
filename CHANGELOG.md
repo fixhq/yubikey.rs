@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Derive Hash on Version to match Eq and enable use as HashMap/HashSet key
 - Fix: Propagate cert.to_der() error in CLI terminal display instead of panicking
 - Fix: Derive Ord/PartialOrd on Version instead of manual implementation
+- Fix: Remove redundant slice indexing in transfer_data
 - Add Support for AES Management Keys
 - Dependencies Upgraded 2026-04-06
 

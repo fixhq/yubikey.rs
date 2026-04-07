@@ -439,7 +439,7 @@ impl<'tx> Transaction<'tx> {
                 return Err(Error::SizeError);
             }
 
-            out_data.extend_from_slice(&response.data()[..response.data().len()]);
+            out_data.extend_from_slice(response.data());
 
             in_offset += this_size;
             if in_offset >= in_data.len() {
@@ -468,7 +468,7 @@ impl<'tx> Transaction<'tx> {
                 return Err(Error::SizeError);
             }
 
-            out_data.extend_from_slice(&response.data()[..response.data().len()]);
+            out_data.extend_from_slice(response.data());
         }
 
         Ok(Response::new(sw, out_data))
