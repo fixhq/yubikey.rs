@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Propagate cert.to_der() error in CLI terminal display instead of panicking
 - Fix: Derive Ord/PartialOrd on Version instead of manual implementation
 - Fix: Remove redundant slice indexing in transfer_data
+- Fix: Remove dead code in read_config that allocated an unused buffer
 - Add Support for AES Management Keys
 - Dependencies Upgraded 2026-04-06
 

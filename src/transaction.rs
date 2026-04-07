@@ -577,14 +577,8 @@ impl<'tx> Transaction<'tx> {
     /// Write configuration to the YubiKey
     #[cfg(feature = "untested")]
     pub fn read_config(&mut self) -> Result<DeviceInfo> {
-        let mut data = [0u8; CB_BUF_MAX];
-        let mut len = data.len();
-        let data_remaining = &mut data[..];
-
-        len -= data_remaining.len();
         let response = Apdu::new(Ins::ReadConfig)
             .params(0x00, 0x00)
-            .data(&data[..len])
             .transmit(self, CB_BUF_MAX + 2)?;
 
         if !response.is_success() {
