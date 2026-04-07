@@ -30,8 +30,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use crate::{transaction::Transaction, Buffer, Result};
-use log::trace;
+use crate::{transaction::Transaction, Buffer, Error, Result};
+use log::{error, trace};
 use zeroize::{Zeroize, Zeroizing};
 
 /// Maximum amount of command data that can be included in an APDU
@@ -97,21 +97,26 @@ impl Apdu {
 
     /// Set the command data for this APDU.
     ///
-    /// Panics if the byte slice is more than 255 bytes!
-    pub fn data(&mut self, bytes: impl AsRef<[u8]>) -> &mut Self {
-        assert!(self.data.is_empty(), "APDU command already set!");
+    /// Returns an error if data was already set or the byte slice exceeds 255 bytes.
+    pub fn data(&mut self, bytes: impl AsRef<[u8]>) -> Result<&mut Self> {
+        if !self.data.is_empty() {
+            error!("APDU command data already set");
+            return Err(Error::GenericError);
+        }
 
         let bytes = bytes.as_ref();
 
-        assert!(
-            bytes.len() <= APDU_DATA_MAX,
-            "APDU command data too long: {} (max: {})",
-            bytes.len(),
-            APDU_DATA_MAX
-        );
+        if bytes.len() > APDU_DATA_MAX {
+            error!(
+                "APDU command data too long: {} (max: {})",
+                bytes.len(),
+                APDU_DATA_MAX
+            );
+            return Err(Error::SizeError);
+        }
 
         self.data.extend_from_slice(bytes);
-        self
+        Ok(self)
     }
 
     /// Transmit this APDU using the given card transaction

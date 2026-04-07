@@ -120,6 +120,7 @@ impl MsContainer {
             for (i, chunk) in buf.chunks_exact_mut(Self::REC_LEN).enumerate() {
                 chunk.copy_from_slice(&containers[i].to_bytes());
             }
+            Ok(())
         })?;
 
         txn.save_object(OBJ_MSCMAP, &buf[..offset])

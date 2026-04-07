@@ -79,7 +79,7 @@ impl<'tx> Transaction<'tx> {
     ) -> Result<()> {
         let response = Apdu::new(Ins::SelectApplication)
             .p1(0x04)
-            .data(applet)
+            .data(applet)?
             .transmit(self, 0xFF)
             .inspect_err(|e| error!("failed communicating with card: '{}'", e))?;
 
@@ -191,7 +191,7 @@ impl<'tx> Transaction<'tx> {
         if !pin.is_empty() {
             let mut data = Zeroizing::new([0xff; CB_PIN_MAX]);
             data[0..pin.len()].copy_from_slice(pin);
-            query.data(data.as_slice());
+            query.data(data.as_slice())?;
         }
 
         let response = query.transmit(self, 261)?;
@@ -259,7 +259,7 @@ impl<'tx> Transaction<'tx> {
 
         let status_words = Apdu::new(Ins::SetMgmKey)
             .params(0xff, p2)
-            .data(data)
+            .data(data)?
             .transmit(self, 261)?
             .status_words();
 
@@ -344,21 +344,24 @@ impl<'tx> Transaction<'tx> {
         };
 
         let offset = Tlv::write_as(&mut indata, 0x7c, in_len + bytes + 3, |buf| {
-            assert_eq!(Tlv::write(buf, 0x82, &[]).expect("large enough"), 2);
-            assert_eq!(
-                Tlv::write(
-                    &mut buf[2..],
-                    match (algorithm, decipher) {
-                        (AlgorithmId::EccP256, true)
-                        | (AlgorithmId::EccP384, true)
-                        | (AlgorithmId::X25519, true) => 0x85,
-                        _ => 0x81,
-                    },
-                    sign_in
-                )
-                .expect("large enough"),
-                1 + bytes + in_len
-            );
+            let tag_len = Tlv::write(buf, 0x82, &[])?;
+            if tag_len != 2 {
+                return Err(Error::SizeError);
+            }
+            let data_len = Tlv::write(
+                &mut buf[2..],
+                match (algorithm, decipher) {
+                    (AlgorithmId::EccP256, true)
+                    | (AlgorithmId::EccP384, true)
+                    | (AlgorithmId::X25519, true) => 0x85,
+                    _ => 0x81,
+                },
+                sign_in,
+            )?;
+            if data_len != 1 + bytes + in_len {
+                return Err(Error::SizeError);
+            }
+            Ok(())
         })?;
 
         let response = self
@@ -418,7 +421,7 @@ impl<'tx> Transaction<'tx> {
             let response = Apdu::new(templ[1])
                 .cla(cla)
                 .params(templ[2], templ[3])
-                .data(&in_data[in_offset..(in_offset + this_size)])
+                .data(&in_data[in_offset..(in_offset + this_size)])?
                 .transmit(self, 261)?;
 
             sw = response.status_words();
@@ -565,7 +568,7 @@ impl<'tx> Transaction<'tx> {
 
         let response = Apdu::new(Ins::WriteConfig)
             .params(0x00, 0x00)
-            .data(&data)
+            .data(&data)?
             .transmit(self, 2)?;
 
         if !response.is_success() {

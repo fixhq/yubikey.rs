@@ -759,6 +759,7 @@ fn write_key(
                     *b = 0;
                 }
                 buf[padding..].copy_from_slice(param);
+                Ok(())
             },
         )?;
     }

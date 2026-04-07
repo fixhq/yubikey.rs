@@ -108,7 +108,7 @@ impl<'a> Tlv<'a> {
         value: Gen,
     ) -> Result<usize>
     where
-        Gen: FnOnce(&mut [u8]),
+        Gen: FnOnce(&mut [u8]) -> Result<()>,
     {
         if buffer.len() < CB_OBJ_TAG_MIN {
             return Err(Error::SizeError);
@@ -120,7 +120,7 @@ impl<'a> Tlv<'a> {
         if buffer.len() < offset + length {
             return Err(Error::SizeError);
         }
-        value(&mut buffer[offset..offset + length]);
+        value(&mut buffer[offset..offset + length])?;
 
         Ok(offset + length)
     }

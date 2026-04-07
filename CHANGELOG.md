@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Slice authentication response to exact challenge length to prevent ct_eq length mismatch
 - Fix: Guard against negative new_len in set_item() to prevent signed-to-unsigned wraparound on malicious metadata
 - Fix: Include missing dq component in RsaKeyData::total_len() to prevent KEYDATA_LEN overflow guard bypass
+- Fix: Replace panicking assert!/expect with Result returns in Apdu::data() and Tlv::write_as closure
 - Add Support for AES Management Keys
 - Dependencies Upgraded 2026-04-06
 
