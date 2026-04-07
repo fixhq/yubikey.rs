@@ -46,7 +46,6 @@ use log::{error, info};
 use pcsc::Card;
 use rand_core::TryRng;
 use std::{
-    cmp::{Ord, Ordering},
     fmt::{self, Display},
     str::FromStr,
 };
@@ -124,7 +123,7 @@ impl Display for Serial {
 }
 
 /// YubiKey version.
-#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Version {
     /// Major version component
     pub major: u8,
@@ -166,39 +165,6 @@ impl Version {
 impl Display for Version {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
-    }
-}
-
-impl Ord for Version {
-    fn cmp(&self, other: &Self) -> Ordering {
-        if self.major > other.major {
-            return Ordering::Greater;
-        }
-        if self.major < other.major {
-            return Ordering::Less;
-        }
-
-        if self.minor > other.minor {
-            return Ordering::Greater;
-        }
-        if self.minor < other.minor {
-            return Ordering::Less;
-        }
-
-        if self.patch > other.patch {
-            return Ordering::Greater;
-        }
-        if self.patch < other.patch {
-            return Ordering::Less;
-        }
-
-        Ordering::Equal
-    }
-}
-
-impl PartialOrd for Version {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
     }
 }
 

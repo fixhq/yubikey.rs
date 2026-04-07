@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Handle get_pin_retries error gracefully in CLI status command
 - Fix: Derive Hash on Version to match Eq and enable use as HashMap/HashSet key
 - Fix: Propagate cert.to_der() error in CLI terminal display instead of panicking
+- Fix: Derive Ord/PartialOrd on Version instead of manual implementation
 - Add Support for AES Management Keys
 - Dependencies Upgraded 2026-04-06
 
