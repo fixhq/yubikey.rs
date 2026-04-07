@@ -429,10 +429,10 @@ impl<'tx> Transaction<'tx> {
                 _ => return Ok(Response::new(sw, out_data)),
             }
 
-            if !out_data.is_empty() && (out_data.len() - response.data().len() > max_out) {
+            if out_data.len() + response.data().len() > max_out {
                 error!(
                     "output buffer too small: wanted to write {}, max was {}",
-                    out_data.len() - response.data().len(),
+                    out_data.len() + response.data().len(),
                     max_out
                 );
 
