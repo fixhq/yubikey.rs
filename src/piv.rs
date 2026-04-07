@@ -844,7 +844,7 @@ impl RsaKeyData {
     }
 
     fn total_len(&self) -> usize {
-        self.p.len() + self.q.len() + self.dp.len() + self.qinv.len()
+        self.p.len() + self.q.len() + self.dp.len() + self.dq.len() + self.qinv.len()
     }
 }
 
