@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Change `CachedPin` from `Vec<u8>` to `Zeroizing<Vec<u8>>` so cached PINs are zeroed on drop
 - Fix: Handle get_pin_retries error gracefully in CLI status command
 - Fix: Derive Hash on Version to match Eq and enable use as HashMap/HashSet key
+- Fix: Propagate cert.to_der() error in CLI terminal display instead of panicking
 - Add Support for AES Management Keys
 - Dependencies Upgraded 2026-04-06
 
