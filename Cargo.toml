@@ -24,6 +24,7 @@ sha2 = "0.11"
 x509-cert = { version = "0.3.0-rc.4", features = ["builder", "hazmat"] }
 
 [dependencies]
+pkcs8 = "=0.11.0-rc.11"
 aes = { version = "0.9.0", features = ["zeroize"] }
 bitflags = "2.11.1"
 cipher = { version = "0.5", features = ["getrandom", "rand_core"] }

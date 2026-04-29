@@ -353,9 +353,9 @@ dependencies = [
 
 [[package]]
 name = "ecdsa"
-version = "0.17.0-rc.18"
+version = "0.17.0-rc.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54fb064faabbee66e1fc8e5c5a9458d4269dc2d8b638fe86a425adb2510d1a96"
+checksum = "dc4bf51f0534ed6e59a0f2f26272b64ba55c470133f8424c2adfd1c4d59d9988"
 dependencies = [
  "der",
  "digest",
@@ -368,9 +368,9 @@ dependencies = [
 
 [[package]]
 name = "ed25519"
-version = "3.0.0-rc.5"
+version = "3.0.0-rc.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bf8e9f747a3618916ed918759c99ddc9de22888782edba712c0a856a09ed42d"
+checksum = "c6e914c7c52decb085cea910552e24c63ac019e3ab8bf001ff736da9a9d9d890"
 dependencies = [
  "pkcs8",
  "signature",
@@ -393,9 +393,9 @@ dependencies = [
 
 [[package]]
 name = "elliptic-curve"
-version = "0.14.0-rc.32"
+version = "0.14.0-rc.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cda94f31325c4275e9706adecbb6f0650dee2f904c915a98e3d81adaaaa757aa"
+checksum = "b148a81cede8f4023248f980cffdf7611c46f2add469c6980e815b7c5b764ba5"
 dependencies = [
  "base16ct",
  "crypto-bigint",
@@ -757,9 +757,9 @@ dependencies = [
 
 [[package]]
 name = "pkcs8"
-version = "0.11.0"
+version = "0.11.0-rc.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "451913da69c775a56034ea8d9003d27ee8948e12443eae7c038ba100a4f21cb7"
+checksum = "12922b6296c06eb741b02d7b5161e3aaa22864af38dfa025a1a3ba3f68c84577"
 dependencies = [
  "der",
  "spki",
@@ -901,9 +901,9 @@ dependencies = [
 
 [[package]]
 name = "rsa"
-version = "0.10.0-rc.18"
+version = "0.10.0-rc.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30b2aa4ba0d89f73d1e332df05be0eeab8840351c36ca5654341dfdb57bb3caf"
+checksum = "87ed3e93fc7e473e464b9726f4759659e72bc8665e4b8ea227547024f416d905"
 dependencies = [
  "const-oid",
  "crypto-bigint",
@@ -1424,6 +1424,7 @@ dependencies = [
  "p384",
  "pbkdf2",
  "pcsc",
+ "pkcs8",
  "rand",
  "rand_core",
  "rsa",
