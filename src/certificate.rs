@@ -231,7 +231,9 @@ pub(crate) fn read_certificate(txn: &Transaction<'_>, slot: SlotId) -> Result<Bu
     };
 
     // TODO(str4d): Check the rest of the buffer (TAG_CERT_COMPRESS and TAG_CERT_LRC)
-    if buf[0] == TAG_CERT {
+    // `fetch_object` can return an empty buffer (e.g. a zero-length `0x53` TLV);
+    // use `first()` so an empty object does not panic on indexing.
+    if buf.first() == Some(&TAG_CERT) {
         Tlv::parse_single(buf, TAG_CERT).or_else(|_| {
             // TODO(tarcieri): is this really ok?
             Ok(Zeroizing::new(vec![]))
