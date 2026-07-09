@@ -48,7 +48,10 @@ impl<'tx> Transaction<'tx> {
     /// split into multiple APDUs, use the [`Transaction::transfer_data`]
     /// method instead.
     pub fn transmit(&self, send_buffer: &[u8], recv_len: usize) -> Result<Vec<u8>> {
-        trace!(">>> {:?}", send_buffer);
+        // Do not log `send_buffer` contents: the serialized APDU may carry
+        // PINs, PUKs, management keys, or imported private key material. The
+        // redacted `Apdu` header is already traced in `Apdu::transmit`.
+        trace!(">>> {} byte APDU", send_buffer.len());
 
         let mut recv_buffer = vec![0u8; recv_len];
 

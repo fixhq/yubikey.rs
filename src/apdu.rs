@@ -31,6 +31,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use crate::{transaction::Transaction, Buffer, Error, Result};
+use core::fmt;
 use log::{error, trace};
 use zeroize::{Zeroize, Zeroizing};
 
@@ -40,7 +41,7 @@ const APDU_DATA_MAX: usize = 0xFF;
 /// Application Protocol Data Unit (APDU).
 ///
 /// These messages are packets used to communicate with the YubiKey.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub(crate) struct Apdu {
     /// Instruction class: indicates the type of command (e.g. inter-industry or proprietary)
     cla: u8,
@@ -137,6 +138,21 @@ impl Apdu {
         bytes.push(self.data.len() as u8);
         bytes.extend_from_slice(self.data.as_ref());
         Zeroizing::new(bytes)
+    }
+}
+
+impl fmt::Debug for Apdu {
+    /// Redacts the `data` field, which may carry PINs, PUKs, management keys,
+    /// or imported private key material. Only the header and payload length
+    /// are printed so trace logging cannot leak secrets.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Apdu")
+            .field("cla", &self.cla)
+            .field("ins", &self.ins)
+            .field("p1", &self.p1)
+            .field("p2", &self.p2)
+            .field("data", &format_args!("<{} bytes redacted>", self.data.len()))
+            .finish()
     }
 }
 
@@ -291,7 +307,7 @@ impl From<Ins> for u8 {
 }
 
 /// APDU responses
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub(crate) struct Response {
     /// Status words
     status_words: StatusWords,
@@ -324,6 +340,18 @@ impl Response {
     /// Borrow the response data
     pub fn data(&self) -> &[u8] {
         self.data.as_ref()
+    }
+}
+
+impl fmt::Debug for Response {
+    /// Redacts the `data` field, which may carry decrypted plaintext or
+    /// secret material read back from the card (e.g. protected metadata).
+    /// Only the status words and payload length are printed.
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Response")
+            .field("status_words", &self.status_words)
+            .field("data", &format_args!("<{} bytes redacted>", self.data.len()))
+            .finish()
     }
 }
 
