@@ -959,7 +959,9 @@ pub fn attest(yubikey: &mut YubiKey, key: SlotId) -> Result<Buffer> {
         }
     }
 
-    if response.data()[0] != 0x30 {
+    // Use `first()` so an empty success response returns an error rather than
+    // panicking on the index.
+    if response.data().first() != Some(&0x30) {
         return Err(Error::GenericError);
     }
 
