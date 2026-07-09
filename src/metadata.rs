@@ -68,8 +68,10 @@ pub(crate) type AdminData = Metadata<Admin>;
 
 impl<T: MetadataType> Default for Metadata<T> {
     fn default() -> Self {
+        // Reserve the maximum object size up front so `set_item` growth never
+        // reallocates and leaves unwiped copies of protected secrets on the heap.
         Metadata {
-            inner: Zeroizing::new(vec![]),
+            inner: Zeroizing::new(Vec::with_capacity(CB_OBJ_MAX)),
             _marker: PhantomData,
         }
     }
@@ -79,8 +81,17 @@ impl<T: MetadataType> Metadata<T> {
     /// Read metadata
     pub(crate) fn read(txn: &Transaction<'_>) -> Result<Self> {
         let data = txn.fetch_object(T::obj_id())?;
+        let parsed = Tlv::parse_single(data, T::tag())?;
+
+        // Copy into a buffer pre-sized to the maximum object size so a later
+        // `set_item` growth never reallocates, which would strand an unwiped
+        // copy of the protected metadata (e.g. the PIN-protected MGM key) in
+        // freed heap. `parsed` is `Zeroizing` and is wiped when dropped here.
+        let mut inner = Zeroizing::new(Vec::with_capacity(CB_OBJ_MAX));
+        inner.extend_from_slice(&parsed);
+
         Ok(Metadata {
-            inner: Tlv::parse_single(data, T::tag())?,
+            inner,
             _marker: PhantomData,
         })
     }

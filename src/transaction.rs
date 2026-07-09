@@ -417,7 +417,12 @@ impl<'tx> Transaction<'tx> {
     /// [`Transaction::transmit`].
     pub fn transfer_data(&self, templ: &[u8], in_data: &[u8], max_out: usize) -> Result<Response> {
         let mut in_offset = 0;
-        let mut out_data = vec![];
+        // Reserve the whole output bound up front. `out_data` accumulates
+        // possibly-secret response bytes (decrypted plaintext, key material read
+        // back); growing it with `extend_from_slice` would reallocate and leave
+        // unwiped copies on the heap. The loop already errors out before the
+        // content can exceed `max_out`, so this capacity is never outgrown.
+        let mut out_data = Vec::with_capacity(max_out);
         let mut sw;
 
         loop {

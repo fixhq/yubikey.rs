@@ -803,44 +803,50 @@ impl RsaKeyData {
     /// - `Ok(key_data)` if `secret_p` and `secret_q` are valid primes.
     /// - `Err(Error::AlgorithmError)` if `secret_p`/`secret_q` are invalid primes.
     pub fn new(secret_p: &[u8], secret_q: &[u8]) -> Result<Self> {
-        let p = BoxedUint::from_be_slice_vartime(secret_p);
-        let q = BoxedUint::from_be_slice_vartime(secret_q);
+        // Keep the secret primes in `Zeroizing` so the `BoxedUint` temporaries
+        // are wiped on drop rather than stranded in freed heap.
+        let p = Zeroizing::new(BoxedUint::from_be_slice_vartime(secret_p));
+        let q = Zeroizing::new(BoxedUint::from_be_slice_vartime(secret_q));
+        // The public exponent is not secret.
         let exp = BoxedUint::from(KEYDATA_RSA_EXP);
 
-        let mut private_key = RsaPrivateKey::from_p_q(p.clone(), q.clone(), exp)
+        // `RsaPrivateKey` is `ZeroizeOnDrop`, so the copies of `p`/`q` moved in
+        // here — and the `dp`/`dq`/`qinv` values it precomputes — are wiped when
+        // it drops.
+        let mut private_key = RsaPrivateKey::from_p_q((*p).clone(), (*q).clone(), exp)
             .map_err(|_| Error::AlgorithmError)?;
         private_key
             .precompute()
             .map_err(|_| Error::AlgorithmError)?;
 
+        // `retrieve()` returns an owned `BoxedUint`; hold it in `Zeroizing` so it
+        // is wiped once serialized. `dp`/`dq` are borrowed from `private_key`,
+        // which wipes them itself.
+        let qinv = Zeroizing::new(
+            private_key
+                .qinv()
+                .expect("invariant violation: precompute should fill the field")
+                .retrieve(),
+        );
+
+        // `Vec::from(Box<[u8]>)` reuses the `to_be_bytes()` allocation instead of
+        // copying (unlike `.to_vec()`), so no unwiped byte copy is left behind.
         Ok(RsaKeyData {
-            p: Zeroizing::new(p.to_be_bytes().to_vec()),
-            q: Zeroizing::new(q.to_be_bytes().to_vec()),
-            dp: Zeroizing::new(
+            p: Zeroizing::new(Vec::from(p.to_be_bytes())),
+            q: Zeroizing::new(Vec::from(q.to_be_bytes())),
+            dp: Zeroizing::new(Vec::from(
                 private_key
                     .dp()
                     .expect("invariant violation: precompute should fill the field")
-                    .clone()
-                    .to_be_bytes()
-                    .to_vec(),
-            ),
-            dq: Zeroizing::new(
+                    .to_be_bytes(),
+            )),
+            dq: Zeroizing::new(Vec::from(
                 private_key
                     .dq()
                     .expect("invariant violation: precompute should fill the field")
-                    .clone()
-                    .to_be_bytes()
-                    .to_vec(),
-            ),
-            qinv: Zeroizing::new(
-                private_key
-                    .qinv()
-                    .expect("invariant violation: precompute should fill the field")
-                    .clone()
-                    .retrieve()
-                    .to_be_bytes()
-                    .to_vec(),
-            ),
+                    .to_be_bytes(),
+            )),
+            qinv: Zeroizing::new(Vec::from(qinv.to_be_bytes())),
         })
     }
 
