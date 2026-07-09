@@ -296,7 +296,17 @@ impl MgmKey {
     ///
     /// Warning: PIN-derived mode is not secure. You should not use this technique. It is
     /// offered only for backwards compatibility.
+    ///
+    /// The key is derived with PBKDF2-HMAC-SHA1 at only 10,000 iterations from a
+    /// salt that is readable from the card without authentication, over a PIN
+    /// space of 6–8 digits — a captured management-key exchange enables a
+    /// sub-second offline brute-force. Provision a random key with
+    /// [`MgmKey::generate_for`] and store it via [`MgmKey::set_protected`] instead.
     #[cfg(feature = "untested")]
+    #[deprecated(
+        since = "0.9.0",
+        note = "PIN-derived MGM keys are insecure (PBKDF2-HMAC-SHA1, 10k iterations, card-readable salt); use MgmKey::generate_for + MgmKey::set_protected instead"
+    )]
     pub fn get_derived(yubikey: &mut YubiKey, pin: &[u8]) -> Result<Self> {
         let txn = yubikey.begin_transaction()?;
 
