@@ -143,6 +143,12 @@ impl<T: MetadataType> Metadata<T> {
             }
 
             offset += cb_temp;
+
+            // `cb_temp` is a device-declared length; a value that overshoots the
+            // buffer must not be allowed to push `offset` past the end.
+            if offset > self.inner.len() {
+                return Err(Error::GenericError);
+            }
         }
 
         if tag_temp != tag {
@@ -151,8 +157,12 @@ impl<T: MetadataType> Metadata<T> {
                 return Ok(());
             }
 
-            // We did not find an existing tag, append
-            assert_eq!(offset, self.inner.len());
+            // We did not find an existing tag, append. A well-formed scan must
+            // have consumed exactly the whole buffer; anything else means the
+            // device-supplied metadata was malformed.
+            if offset != self.inner.len() {
+                return Err(Error::GenericError);
+            }
             self.inner.extend(iter::repeat_n(
                 0,
                 1 + get_length_size(item.len()) + item.len(),
@@ -163,6 +173,13 @@ impl<T: MetadataType> Metadata<T> {
         }
 
         // Found tag
+
+        // `cb_temp` is the device-declared value length; ensure the value
+        // actually fits in the remaining buffer before indexing with it.
+        let value_end = offset.checked_add(cb_temp).ok_or(Error::GenericError)?;
+        if value_end > self.inner.len() {
+            return Err(Error::GenericError);
+        }
 
         // Check length, if it matches, overwrite
         if cb_temp == item.len() {
