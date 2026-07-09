@@ -102,11 +102,19 @@ impl<'tx> Transaction<'tx> {
         // get version from device
         let response = Apdu::new(Ins::GetVersion).transmit(self, 261)?;
 
-        if !response.is_success() || response.data().is_empty() {
+        if !response.is_success() {
             return Err(Error::GenericError);
         }
 
-        Ok(response.data()[..3].try_into().map(Version::new)?)
+        // The emptiness check alone would let a 1- or 2-byte success response
+        // reach `[..3]` and panic; slice with `get(..)` so a short response
+        // returns an error instead.
+        let version: [u8; 3] = response
+            .data()
+            .get(..3)
+            .ok_or(Error::SizeError)?
+            .try_into()?;
+        Ok(Version::new(version))
     }
 
     /// Get YubiKey device serial number.
