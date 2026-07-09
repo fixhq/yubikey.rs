@@ -76,7 +76,14 @@ impl<'a> Tlv<'a> {
         let mut len = 0;
         let offset = 1 + get_length(&buffer[1..], &mut len);
 
-        buffer.copy_within(offset..offset + len, 0);
+        // `len` is device-declared; guard against a length that overshoots the
+        // buffer before `copy_within` panics (mirrors the check in `parse`).
+        let end = offset.checked_add(len).ok_or(Error::SizeError)?;
+        if end > buffer.len() {
+            return Err(Error::SizeError);
+        }
+
+        buffer.copy_within(offset..end, 0);
         buffer.truncate(len);
         Ok(buffer)
     }
