@@ -689,6 +689,7 @@ impl Manager {
 }
 
 /// secret to lock YubiKey's configuration
+#[derive(ZeroizeOnDrop)]
 pub struct Lock(pub [u8; 16]);
 
 impl Lock {
