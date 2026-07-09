@@ -196,7 +196,7 @@ enum MgmKeyKind {
 impl MgmKey {
     /// Generates a random MGM key for the given algorithm.
     pub fn generate(alg: MgmAlgorithmId, rng: &mut impl TryCryptoRng) -> Result<Self> {
-        match alg {
+        let kind = match alg {
             MgmAlgorithmId::ThreeDes => {
                 Key::<des::TdesEde3>::try_generate_from_rng(rng).map(MgmKeyKind::Tdes)
             }
@@ -213,8 +213,15 @@ impl MgmKey {
         .map_err(|e| {
             error!("RNG failure: {}", e);
             Error::KeyError
-        })
-        .map(Self)
+        })?;
+
+        // Reject the negligibly-rare case of a randomly generated weak 3DES key
+        // so `generate` upholds the same weak-key guarantee as `from_bytes`.
+        if let MgmKeyKind::Tdes(key) = &kind {
+            des::weak_key_test(key.as_slice()).map_err(|_| Error::KeyError)?;
+        }
+
+        Ok(Self(kind))
     }
 
     /// Generates a random MGM key using the preferred algorithm for the given Yubikey's
@@ -499,6 +506,11 @@ impl MgmKey {
             MgmAlgorithmId::ThreeDes => {
                 let key =
                     Key::<des::TdesEde3>::try_from(bytes.as_ref()).map_err(|_| Error::SizeError)?;
+                // Honor the documented contract: reject weak 3DES keys, including
+                // degenerate equal-subkey keys that collapse 3DES-EDE to single
+                // 56-bit DES. `try_from` above guarantees a 24-byte key, so
+                // `weak_key_test` cannot panic on the length assertion.
+                des::weak_key_test(bytes.as_ref()).map_err(|_| Error::KeyError)?;
                 Ok(MgmKeyKind::Tdes(key))
             }
             MgmAlgorithmId::Aes128 => Key::<aes::Aes128>::try_from(bytes.as_ref())

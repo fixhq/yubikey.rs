@@ -151,7 +151,10 @@ impl fmt::Debug for Apdu {
             .field("ins", &self.ins)
             .field("p1", &self.p1)
             .field("p2", &self.p2)
-            .field("data", &format_args!("<{} bytes redacted>", self.data.len()))
+            .field(
+                "data",
+                &format_args!("<{} bytes redacted>", self.data.len()),
+            )
             .finish()
     }
 }
@@ -350,7 +353,10 @@ impl fmt::Debug for Response {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Response")
             .field("status_words", &self.status_words)
-            .field("data", &format_args!("<{} bytes redacted>", self.data.len()))
+            .field(
+                "data",
+                &format_args!("<{} bytes redacted>", self.data.len()),
+            )
             .finish()
     }
 }
