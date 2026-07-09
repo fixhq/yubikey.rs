@@ -262,7 +262,10 @@ impl<'tx> Transaction<'tx> {
     pub fn set_mgm_key(&self, new_key: &MgmKey, require_touch: bool) -> Result<()> {
         let p2 = if require_touch { 0xfe } else { 0xff };
 
-        let mut data = Vec::with_capacity(usize::from(new_key.key_size()) + 3);
+        // Build the payload in a `Zeroizing` buffer so the raw management key is
+        // wiped when this call returns, matching `verify_pin` and `MgmKey`'s own
+        // `ZeroizeOnDrop`.
+        let mut data = Zeroizing::new(Vec::with_capacity(usize::from(new_key.key_size()) + 3));
         data.push(new_key.algorithm_id().into());
         data.push(KEY_CARDMGM);
         data.push(new_key.key_size());
@@ -270,7 +273,7 @@ impl<'tx> Transaction<'tx> {
 
         let status_words = Apdu::new(Ins::SetMgmKey)
             .params(0xff, p2)
-            .data(data)?
+            .data(data.as_slice())?
             .transmit(self, 261)?
             .status_words();
 
