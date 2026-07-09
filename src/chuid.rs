@@ -30,7 +30,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use crate::{Result, YubiKey};
+use crate::{Error, Result, YubiKey};
 use std::fmt::{self, Debug, Display};
 use uuid::Uuid;
 
@@ -108,7 +108,13 @@ impl ChuId {
     pub fn get(yubikey: &mut YubiKey) -> Result<ChuId> {
         let txn = yubikey.begin_transaction()?;
         let response = txn.fetch_object(OBJ_CHUID)?;
-        Ok(response[..Self::BYTE_SIZE].try_into().map(Self)?)
+        // Slice with `get(..)` so a short CHUID object returns an error rather
+        // than panicking.
+        Ok(response
+            .get(..Self::BYTE_SIZE)
+            .ok_or(Error::SizeError)?
+            .try_into()
+            .map(Self)?)
     }
 
     /// Set Cardholder Unique Identifier (CHUID)
