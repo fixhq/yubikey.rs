@@ -1045,7 +1045,10 @@ impl TryFrom<Buffer> for SlotMetadata {
             |acc: Result<SlotMetadata>, tlv| match acc {
                 Ok(mut metadata) => match tlv.tag {
                     1 => {
-                        metadata.algorithm = SlotAlgorithmId::try_from(tlv.value[0])?;
+                        // Use `first()` so an empty TLV value returns an error
+                        // rather than panicking on the index.
+                        let &b = tlv.value.first().ok_or(Error::ParseError)?;
+                        metadata.algorithm = SlotAlgorithmId::try_from(b)?;
                         Ok(metadata)
                     }
                     2 => {
