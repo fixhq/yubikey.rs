@@ -539,15 +539,17 @@ impl<'tx> Transaction<'tx> {
     pub fn save_object(&self, object_id: ObjectId, indata: &[u8]) -> Result<()> {
         let templ = [0, Ins::PutData.code(), 0x3f, 0xff];
 
-        // TODO(tarcieri): replace with vector
-        let mut data = [0u8; CB_BUF_MAX];
+        // `indata` may be secret (e.g. the PIN-protected management key written via
+        // `ProtectedData`); keep the serialized object in a zeroizing buffer so the
+        // plaintext isn't stranded on the stack after transmission.
+        let mut data = Zeroizing::new([0u8; CB_BUF_MAX]);
 
         if indata.len() > CB_OBJ_MAX {
             return Err(Error::SizeError);
         }
 
         let mut len = data.len();
-        let mut data_remaining = set_object(object_id, &mut data);
+        let mut data_remaining = set_object(object_id, &mut data[..]);
 
         let offset = Tlv::write(data_remaining, 0x53, indata)?;
         data_remaining = &mut data_remaining[offset..];
