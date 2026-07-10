@@ -422,7 +422,10 @@ impl<'tx> Transaction<'tx> {
         // back); growing it with `extend_from_slice` would reallocate and leave
         // unwiped copies on the heap. The loop already errors out before the
         // content can exceed `max_out`, so this capacity is never outgrown.
-        let mut out_data = Vec::with_capacity(max_out);
+        // `Zeroizing` also wipes the partial buffer on the early-return abort
+        // paths below, where it would otherwise be stranded unzeroized; the
+        // success paths `mem::take` it into `Response`, which zeroizes on drop.
+        let mut out_data = Zeroizing::new(Vec::with_capacity(max_out));
         let mut sw;
 
         loop {
@@ -448,7 +451,7 @@ impl<'tx> Transaction<'tx> {
             match sw {
                 StatusWords::Success | StatusWords::BytesRemaining { .. } => (),
                 // TODO(tarcieri): is this really OK?
-                _ => return Ok(Response::new(sw, out_data)),
+                _ => return Ok(Response::new(sw, core::mem::take(&mut *out_data))),
             }
 
             if out_data.len() + response.data().len() > max_out {
@@ -498,7 +501,7 @@ impl<'tx> Transaction<'tx> {
             out_data.extend_from_slice(response.data());
         }
 
-        Ok(Response::new(sw, out_data))
+        Ok(Response::new(sw, core::mem::take(&mut *out_data)))
     }
 
     /// Fetch an object.
