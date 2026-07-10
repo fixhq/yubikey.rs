@@ -432,20 +432,23 @@ impl MgmKey {
             // a state where we can't set the mgm key
             .inspect_err(|e| error!("could not set new derived mgm key, err = {}", e))?;
 
-        // after this point, we've set the mgm key, so the function should
-        // succeed, regardless of being able to set the metadata
+        // The device management key has now been changed. If persisting it to
+        // PIN-protected metadata fails below, surface the error rather than
+        // returning Ok: otherwise the caller drops `self` believing the key is
+        // recoverable via the PIN, permanently locking the device out of
+        // management (recovery would require a full PIV reset). The caller still
+        // holds `self` and can retry or fall back to `set_manual`.
 
         // Fetch the current protected data, or start a blank metadata blob.
         let mut protected_data = ProtectedData::read(&txn).unwrap_or_default();
 
-        // Set the new mgm key in protected data.
-        if let Err(e) = protected_data.set_item(TAG_PROTECTED_MGM, self.as_ref()) {
-            error!("could not set protected mgm item, err = {:?}", e);
-        } else {
-            protected_data
-                .write(&txn)
-                .inspect_err(|e| error!("could not write protected data, err = {:?}", e))?;
-        }
+        // Set the new mgm key in protected data, then persist it.
+        protected_data
+            .set_item(TAG_PROTECTED_MGM, self.as_ref())
+            .inspect_err(|e| error!("could not set protected mgm item, err = {:?}", e))?;
+        protected_data
+            .write(&txn)
+            .inspect_err(|e| error!("could not write protected data, err = {:?}", e))?;
 
         // set the protected mgm flag in admin data
 
