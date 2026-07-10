@@ -749,6 +749,12 @@ fn write_key(
     let param_tag = algorithm.get_param_tag();
 
     for (i, param) in params.into_iter().enumerate() {
+        // Each key component is left-zero-padded to `elem_len`. Reject any
+        // over-length component up front: otherwise `elem_len - param.len()`
+        // underflows and panics (in release, on the out-of-range slice below).
+        if param.len() > elem_len {
+            return Err(Error::SizeError);
+        }
         offset += Tlv::write_as(
             &mut key_data[offset..],
             param_tag + (i as u8),
