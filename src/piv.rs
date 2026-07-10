@@ -635,7 +635,7 @@ pub fn generate(
         "was permitted by an administrator configuration setting, but is not recommended.";
     const SZ_ROCA_BLOCK_USER: &str = "was blocked due to an end-user configuration setting.";
     const SZ_ROCA_BLOCK_ADMIN: &str = "was blocked due to an administrator configuration setting.";
-    const SZ_ROCA_DEFAULT: &str = "was permitted by default, but is not recommended.  The default behavior will change in a future Yubico release.";
+    const SZ_ROCA_DEFAULT: &str = "was blocked by default because the generated key would be factorable (CVE-2017-15361, ROCA).  Set Enable_Unsafe_Keygen_ROCA=1 to override, which is strongly discouraged.";
 
     let setting_roca: setting::Setting;
 
@@ -648,7 +648,11 @@ pub fn generate(
                 && (yubikey.version.minor < 3
                     || yubikey.version.minor == 3 && (yubikey.version.patch < 5))
             {
-                setting_roca = setting::Setting::get(SZ_SETTING_ROCA, true);
+                // Default to denying RSA keygen on ROCA-affected firmware: keys
+                // generated here are practically factorable from the public key
+                // (CVE-2017-15361). Generation requires an explicit opt-in
+                // (Enable_Unsafe_Keygen_ROCA=1) rather than an opt-out.
+                setting_roca = setting::Setting::get(SZ_SETTING_ROCA, false);
 
                 let psz_msg = match setting_roca.source {
                     setting::SettingSource::User => {
