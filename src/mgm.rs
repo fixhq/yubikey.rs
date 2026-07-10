@@ -55,10 +55,11 @@ use {
             TAG_SERIAL, TAG_UNLOCK, TAG_USB_ENABLED, TAG_USB_SUPPORTED, TAG_VERSION,
         },
         serialization::Tlv,
-        Serial,
+        Buffer, Serial,
     },
     pbkdf2::pbkdf2_hmac,
     sha1::Sha1,
+    zeroize::Zeroizing,
 };
 
 /// YubiKey MGMT Applet Name
@@ -730,8 +731,11 @@ impl DeviceConfig {
         reboot: bool,
         current_lock: Option<Lock>,
         new_lock: Option<Lock>,
-    ) -> Result<Vec<u8>> {
-        let mut data = [0u8; CB_BUF_MAX];
+    ) -> Result<Buffer> {
+        // `data` holds the config-lock secret(s) (`current_lock`/`new_lock`) once
+        // written below; keep it in a zeroizing buffer so the plaintext isn't
+        // stranded on the stack, and return the serialized copy as a `Buffer`.
+        let mut data = Zeroizing::new([0u8; CB_BUF_MAX]);
         let mut len = data.len();
         let mut data_remaining = &mut data[1..];
 
@@ -793,7 +797,7 @@ impl DeviceConfig {
 
         len -= data_remaining.len();
         data[0] = (len - 1) as u8;
-        Ok(data[..len].to_vec())
+        Ok(Zeroizing::new(data[..len].to_vec()))
     }
 
     /// Is the NFC interface active
