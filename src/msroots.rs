@@ -72,7 +72,11 @@ impl MsRoots {
         // allocate first page
         let mut data = Vec::with_capacity(CB_OBJ_MAX);
 
-        for object_id in OBJ_MSROOTS1..OBJ_MSROOTS5 {
+        // Inclusive range: the write side stores up to 5 objects
+        // (OBJ_MSROOTS1..=OBJ_MSROOTS5), so the final slot must be read too;
+        // an exclusive range silently truncates a 5-object truststore. The
+        // OBJ_MSROOTS5 guard below enforces that the last slot is an END chunk.
+        for object_id in OBJ_MSROOTS1..=OBJ_MSROOTS5 {
             let buf = txn.fetch_object(object_id)?;
 
             let (_, tlv) = match Tlv::parse(&buf) {
