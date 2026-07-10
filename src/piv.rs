@@ -643,46 +643,45 @@ pub fn generate(
         AlgorithmId::Rsa1024
         | AlgorithmId::Rsa2048
         | AlgorithmId::Rsa3072
-        | AlgorithmId::Rsa4096 => {
+        | AlgorithmId::Rsa4096
             if yubikey.version.major == 4
                 && (yubikey.version.minor < 3
-                    || yubikey.version.minor == 3 && (yubikey.version.patch < 5))
-            {
-                // Default to denying RSA keygen on ROCA-affected firmware: keys
-                // generated here are practically factorable from the public key
-                // (CVE-2017-15361). Generation requires an explicit opt-in
-                // (Enable_Unsafe_Keygen_ROCA=1) rather than an opt-out.
-                setting_roca = setting::Setting::get(SZ_SETTING_ROCA, false);
+                    || yubikey.version.minor == 3 && (yubikey.version.patch < 5)) =>
+        {
+            // Default to denying RSA keygen on ROCA-affected firmware: keys
+            // generated here are practically factorable from the public key
+            // (CVE-2017-15361). Generation requires an explicit opt-in
+            // (Enable_Unsafe_Keygen_ROCA=1) rather than an opt-out.
+            setting_roca = setting::Setting::get(SZ_SETTING_ROCA, false);
 
-                let psz_msg = match setting_roca.source {
-                    setting::SettingSource::User => {
-                        if setting_roca.value {
-                            SZ_ROCA_ALLOW_USER
-                        } else {
-                            SZ_ROCA_BLOCK_USER
-                        }
+            let psz_msg = match setting_roca.source {
+                setting::SettingSource::User => {
+                    if setting_roca.value {
+                        SZ_ROCA_ALLOW_USER
+                    } else {
+                        SZ_ROCA_BLOCK_USER
                     }
-                    setting::SettingSource::Admin => {
-                        if setting_roca.value {
-                            SZ_ROCA_ALLOW_ADMIN
-                        } else {
-                            SZ_ROCA_BLOCK_ADMIN
-                        }
-                    }
-                    _ => SZ_ROCA_DEFAULT,
-                };
-
-                warn!(
-                    "YubiKey serial number {} is affected by vulnerability CVE-2017-15361 \
-                     (ROCA) and should be replaced. On-chip key generation {}  See \
-                     YSA-2017-01 <https://www.yubico.com/support/security-advisories/ysa-2017-01/> \
-                     for additional information on device replacement and mitigation assistance",
-                    yubikey.serial, psz_msg
-                );
-
-                if !setting_roca.value {
-                    return Err(Error::NotSupported);
                 }
+                setting::SettingSource::Admin => {
+                    if setting_roca.value {
+                        SZ_ROCA_ALLOW_ADMIN
+                    } else {
+                        SZ_ROCA_BLOCK_ADMIN
+                    }
+                }
+                _ => SZ_ROCA_DEFAULT,
+            };
+
+            warn!(
+                "YubiKey serial number {} is affected by vulnerability CVE-2017-15361 \
+                 (ROCA) and should be replaced. On-chip key generation {}  See \
+                 YSA-2017-01 <https://www.yubico.com/support/security-advisories/ysa-2017-01/> \
+                 for additional information on device replacement and mitigation assistance",
+                yubikey.serial, psz_msg
+            );
+
+            if !setting_roca.value {
+                return Err(Error::NotSupported);
             }
         }
         _ => (),
