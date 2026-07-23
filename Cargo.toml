@@ -26,7 +26,7 @@ x509-cert = { version = "0.3.0", features = ["builder", "hazmat"] }
 [dependencies]
 pkcs8 = "0.11.0"
 aes = { version = "0.9.1", features = ["zeroize"] }
-bitflags = "2.13.0"
+bitflags = "2.13.1"
 cipher = { version = "0.5", features = ["getrandom", "rand_core"] }
 curve25519-dalek = "5.0.0"
 der = "0.8"
@@ -48,7 +48,7 @@ sha1 = { version = "0.11", features = ["oid"] }
 sha2 = { workspace = true, features = ["oid"] }
 signature = "3.0.0"
 subtle = "2"
-uuid = { version = "1.23", features = ["v4"] }
+uuid = { version = "1.24", features = ["v4"] }
 x25519-dalek = "3.0.0"
 x509-cert.workspace = true
 zeroize = { version = "1", features = ["derive"] }
